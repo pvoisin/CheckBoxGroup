@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="prototype.js">/* */</script>
+		<script type="text/javascript" src="effects.js">/* */</script>
+		<script type="text/javascript" src="CheckBoxGroup.js">/* */</script>
+		<style>
+			body {
+				font-family : "Bitstream Vera Sans", "Lucida sans";
+				font-size : 14px;
+			}
+
+			h2 {
+				font-style : italic;
+				margin : 32px 0px 0px 0px;
+			}
+
+			fieldSet#E-group {
+				border : 1px solid #CC6666;
+				padding : 0px;
+			}
+
+			fieldSet#E-group legend {
+				margin : 0px 0px 0px 3px;
+				padding : 0px 8px;
+				font-variant : small-caps;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>CheckBoxGroup</h1>
+
+		<h2>"exclusive" mode</h2>
+		<p>
+			<u>Behavior</u>: the master check box will be unchecked as soon as one check box is unchecked.
+			It will be checked back only if the group is completed.
+		</p>
+		<ul>
+			<li>
+				<input id="A-masterCheckBox" type="checkbox"/>
+				<b><label for="A-masterCheckBox">un/check all</label></b>
+			</li>
+			<li>
+				<input id="A-checkBox1" type="checkbox"/>
+				<label for="A-checkBox1">option #1</label>
+			</li>
+			<li>
+				<input id="A-checkBox2" type="checkbox"/>
+				<label for="A-checkBox2">option #2</label>
+			</li>
+			<li>
+				<input id="A-checkBox3" type="checkbox"/>
+				<label for="A-checkBox3">option #3</label>
+			</li>
+		</ul>
+
+		<h2>"non-exclusive" mode</h2>
+		<p>
+			<u>Behavior</u>: the master check box will be unchecked when the selection is empty.
+			It will be checked back as soon as one check box of the group is checked.
+		</p>
+		<ul>
+			<li>
+				<input id="B-masterCheckBox" type="checkbox"/>
+				<b><label for="B-masterCheckBox">un/check all</label></b>
+			</li>
+			<li>
+				<input id="B-checkBox1" type="checkbox"/>
+				<label for="B-checkBox1">option #1</label>
+			</li>
+			<li>
+				<input id="B-checkBox2" type="checkbox"/>
+				<label for="B-checkBox2">option #2</label>
+			</li>
+			<li>
+				<input id="B-checkBox3" type="checkbox"/>
+				<label for="B-checkBox3">option #3</label>
+			</li>
+		</ul>
+
+
+		<h2>listener</h2>
+		<p><u>Activation</u>: unchek all the check boxes</p>
+		<ul>
+			<li>
+				<input id="C-checkBox1" type="checkbox" checked="true"/>
+				<label for="C-checkBox1">option #1</label>
+			</li>
+			<li>
+				<input id="C-checkBox2" type="checkbox" checked="true"/>
+				<label for="C-checkBox2">option #2</label>
+			</li>
+			<li>
+				<input id="C-checkBox3" type="checkbox" checked="true"/>
+				<label for="C-checkBox3">option #3</label>
+			</li>
+		</ul>
+
+		<h2>virtual event using "click();"</h2>
+		<ul>
+			<li>
+				<input id="D-masterCheckBox" type="checkbox"/>
+				<b><label for="D-masterCheckBox">un/select all</label></b>
+			</li>
+			<li>
+				<input id="D-checkBox1" type="checkbox"/>
+				<label for="D-checkBox1">option #1</label>
+				<button onclick="$('D-checkBox1').click();">click();</button>
+			</li>
+			<li>
+				<input id="D-checkBox2" type="checkbox"/>
+				<label for="D-checkBox2">option #2</label>
+				<button onclick="$('D-checkBox2').click();">click();</button>
+			</li>
+			<li>
+				<input id="D-checkBox3" type="checkbox"/>
+				<label for="D-checkBox3">option #3</label>
+				<button onclick="$('D-checkBox3').click();">click();</button>
+			</li>
+		</ul>
+
+		<h2>"getGroup" method</h2>
+		<p>
+			Every check box can access its associated group by using the "getGroup" method.
+			Here, when the user clicks on a check-box, the group (actually the field-set enclosing the group check-boxes) is highlighted.
+		</p>
+		<fieldSet id="E-group">
+			<legend>options</option>
+			<ul>
+				<li>
+					<input id="E-checkBox1" type="checkbox" checked="true"/>
+					<label for="E-checkBox1">option #1</label>
+				</li>
+				<li>
+					<input id="E-checkBox2" type="checkbox" checked="true"/>
+					<label for="E-checkBox2">option #2</label>
+				</li>
+				<li>
+					<input id="E-checkBox3" type="checkbox" checked="true"/>
+					<label for="E-checkBox3">option #3</label>
+				</li>
+			</ul>
+		</fieldSet>
+
+		<script type="text/javascript">
+			var groupA = new CheckBoxGroup(/^A-checkBox([0-9]+)$/, "A-masterCheckBox");
+
+			var groupB = new CheckBoxGroup(/^B-checkBox([0-9]+)$/, "B-masterCheckBox");
+			groupB.setExclusive(false);
+
+			var groupC = new CheckBoxGroup(/^C-checkBox([0-9]+)$/);
+			groupC.addListener({
+				notifyChange : function(event) {
+					if(groupC.getSelection().length == 0) {
+						var checkBox = event.getTarget();
+						var label = $$("label[for='" + checkBox.id + "']")[0];
+
+						if(confirm("You unchecked all options, are you sure you of this choice?")) {
+							alert("OK then, you've just unchecked '" + label.firstChild.nodeValue + "'.");
+						}
+					}
+				}
+			});
+
+			var groupD = new CheckBoxGroup(/^D-checkBox([0-9]+)$/, "D-masterCheckBox");
+
+			var groupE = new CheckBoxGroup(/^E-checkBox([0-9]+)$/);
+			groupE.addListener({
+				notifyChange: function(event) {
+					var checkBox = event.getTarget();
+					var group = checkBox.getGroup();
+					if(group) {
+						new Effect.Highlight($("E-group"), {startcolor : "#FFC0C0"});
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
